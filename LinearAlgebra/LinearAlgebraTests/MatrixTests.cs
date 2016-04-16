@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LinearAlgebra;
 
 namespace LinearAlgebraTests
@@ -51,6 +52,10 @@ namespace LinearAlgebraTests
             Assert.AreEqual(array2D.GetLength(1), A.Columns);
         }
 
+
+        /// <summary>
+        /// test matrix multiplication using overloaded * operator and correct arguments
+        /// </summary>
         [TestMethod]
         public void Operator_MatrixMultiply()
         {
@@ -85,5 +90,23 @@ namespace LinearAlgebraTests
             Assert.AreEqual(Answer.Columns, test.Columns);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Operator_MatrixMultiply_IncorrectDimensions()
+        {
+            //matricies and answer
+            Matrix A = new Matrix(new double[,] { { -1,  2,  5 },
+                                                  {  4,  0, -4 },
+                                                  {  3,  6,  7 },
+                                                  {  9, 10, 11 } });
+
+            Matrix B = new Matrix(new double[,] { { -3, 13, -1 },
+                                                  {  4,  0, 14 },
+                                                  {  5,  2,  3 },
+                                                  {  6, -4,  7 } });
+
+            //carry out multiplication as test
+            Matrix test = A * B;
+        }
     }
 }
