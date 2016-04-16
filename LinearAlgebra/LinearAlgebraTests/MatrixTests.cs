@@ -50,5 +50,40 @@ namespace LinearAlgebraTests
             Assert.AreEqual(array2D.GetLength(0), A.Rows);
             Assert.AreEqual(array2D.GetLength(1), A.Columns);
         }
+
+        [TestMethod]
+        public void Operator_MatrixMultiply()
+        {
+            //matricies and answer
+            Matrix A = new Matrix(new double[,] { { -1,  2,  5, -2 },
+                                                  {  4,  0, -4,  1 },
+                                                  {  3,  6,  7,  8 },
+                                                  {  9, 10, 11, 12 } });
+
+            Matrix B = new Matrix(new double[,] { { -3, 13, -1 },
+                                                  {  4,  0, 14 },
+                                                  {  5,  2,  3 },
+                                                  {  6, -4,  7 } });
+
+            Matrix Answer = new Matrix(new double[,] {{ 24,  5, 30 },
+                                                      {-26, 40, -9 },
+                                                      { 98, 21, 158},
+                                                      {140, 91, 248} });
+
+            //carry out multiplication as test
+            Matrix test = A * B;
+
+            //check the result against the known answer
+            for(int row = 0; row < test.Rows; row++)
+            {
+                for(int column = 0; column < test.Columns; column++)
+                {
+                    Assert.AreEqual(Answer.Array2D[row, column], test.Array2D[row, column]);
+                }
+            }
+            Assert.AreEqual(Answer.Rows, test.Rows);
+            Assert.AreEqual(Answer.Columns, test.Columns);
+        }
+
     }
 }

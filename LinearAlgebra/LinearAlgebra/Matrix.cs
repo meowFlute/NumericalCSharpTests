@@ -53,5 +53,38 @@ namespace LinearAlgebra
             Array2D = newArray2D;
         }
         #endregion
+
+        #region operators
+        /// <summary>
+        /// Applies matrix multiplaction when the * operator is used on two Matrix objects
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        /// <returns></returns>
+        public static Matrix operator *(Matrix A, Matrix B)
+        {
+            //enforce correct dimensions for matrix multiplication
+            if (A.Columns != B.Rows)
+                throw new ArgumentException("A.Rows must be equal to B.Columns");
+
+            //carry out matrix multiplication
+            double[,] tempArray = new double[A.Rows, B.Columns]; //temporary storage of new array
+            for(int ARow = 0; ARow < A.Rows; ARow++)
+            {
+                for (int BColumn = 0; BColumn < B.Columns; BColumn++)
+                {
+                    double value = 0;
+                    for (int i = 0; i < A.Columns; i++)
+                    {
+                        value += A.Array2D[ARow, i] * B.Array2D[i, BColumn];
+                    }
+                    tempArray[ARow, BColumn] = value;
+                }
+            }
+
+            //create and return new Matrix object
+            return new Matrix(tempArray);
+        }
+        #endregion
     }
 }
