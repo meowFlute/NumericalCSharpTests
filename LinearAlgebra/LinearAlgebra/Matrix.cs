@@ -85,6 +85,94 @@ namespace LinearAlgebra
             //create and return new Matrix object
             return new Matrix(tempArray);
         }
+
+        /// <summary>
+        /// scalar multiplication applied to a matrix
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="A"></param>
+        /// <returns></returns>
+        public static Matrix operator *(double x, Matrix A)
+        {
+            double[,] temp = new double[A.Rows, A.Columns];
+            for(int row = 0; row < A.Rows; row++)
+            {
+                for(int column = 0; column < A.Columns; column++)
+                {
+                    // double x double so order doesn't matter
+                    temp[row, column] = A.Array2D[row, column] * x;
+                }
+            }
+
+            return new Matrix(temp);
+        }
+
+        /// <summary>
+        /// possible syntax of scalar multiplication applied to a matrix
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static Matrix operator *(Matrix A, double x)
+        {
+            return x * A;
+        }
+
+        /// <summary>
+        /// matrix addition - Matricies must have same dimensions
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        /// <returns></returns>
+        public static Matrix operator +(Matrix A, Matrix B)
+        {
+            //enforce the correct dimensions 
+            if (A.Rows != B.Rows || A.Columns != B.Columns)
+                throw new ArgumentException("A and B must have the same dimensions.");
+
+            //temporary storage
+            double [,] temp = new double[A.Rows, A.Columns];
+
+            //add for each value in the matrix
+            for(int row = 0; row < A.Rows; row++)
+            {
+                for(int column = 0; column < A.Columns; column++)
+                {
+                    temp[row,column] = A.Array2D[row, column] + B.Array2D[row, column];
+                }
+            }
+
+            //return new matrix 
+            return new Matrix(temp);
+        }
+
+        /// <summary>
+        /// matrix subtraction, matricies must have same dimensions
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        /// <returns></returns>
+        public static Matrix operator -(Matrix A, Matrix B)
+        {
+            //enforce the correct dimensions 
+            if (A.Rows != B.Rows || A.Columns != B.Columns)
+                throw new ArgumentException("A and B must have the same dimensions.");
+
+            //temporary storage
+            double[,] temp = new double[A.Rows, A.Columns];
+
+            //add for each value in the matrix
+            for (int row = 0; row < A.Rows; row++)
+            {
+                for (int column = 0; column < A.Columns; column++)
+                {
+                    temp[row, column] = A.Array2D[row, column] - B.Array2D[row, column];
+                }
+            }
+
+            //return new matrix 
+            return new Matrix(temp);
+        }
         #endregion
     }
 }

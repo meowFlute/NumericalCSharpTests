@@ -26,7 +26,7 @@ namespace LinearAlgebraTests
             Assert.AreEqual(columns, A.Array2D.GetLength(1));
 
             //check values
-            foreach(double value in A.Array2D)
+            foreach (double value in A.Array2D)
             {
                 Assert.AreEqual(3.0, value);
             }
@@ -79,9 +79,9 @@ namespace LinearAlgebraTests
             Matrix test = A * B;
 
             //check the result against the known answer
-            for(int row = 0; row < test.Rows; row++)
+            for (int row = 0; row < test.Rows; row++)
             {
-                for(int column = 0; column < test.Columns; column++)
+                for (int column = 0; column < test.Columns; column++)
                 {
                     Assert.AreEqual(Answer.Array2D[row, column], test.Array2D[row, column]);
                 }
@@ -107,6 +107,130 @@ namespace LinearAlgebraTests
 
             //carry out multiplication as test
             Matrix test = A * B;
+        }
+
+        [TestMethod]
+        public void Operator_ScalarMultiply()
+        {
+            int originalValue = 1;
+            int rows = 3;
+            int columns = 3;
+            double scalar = 5.0;
+
+            //generate a 3x3 matrix of all ones
+            Matrix A = new Matrix(originalValue, rows, columns);
+
+            //should have the same results as far as I'm concerned
+            Matrix test1 = scalar * A;
+            Matrix test2 = A * scalar;
+
+            //test 1 results
+            foreach (double value in test1.Array2D)
+            {
+                Assert.AreEqual(originalValue * scalar, value);
+            }
+
+            //test 2 results
+            foreach (double value in test2.Array2D)
+            {
+                Assert.AreEqual(originalValue * scalar, value);
+            }
+
+            //the dimensions should not change
+            Assert.AreEqual(rows, test1.Rows);
+            Assert.AreEqual(columns, test1.Columns);
+            Assert.AreEqual(rows, test2.Rows);
+            Assert.AreEqual(columns, test2.Columns);
+        }
+
+        [TestMethod]
+        public void Operator_MatrixAddition()
+        {
+            //known quantities
+            Matrix A = new Matrix(new double[,] {   { 1, 2, 4 },
+                                                    { 3, 1, 2 },
+                                                    { 4, 1, 3 } });
+
+            Matrix B = new Matrix(new double[,] {   { 7, 3, 1 },
+                                                    { 2, 3, 5 },
+                                                    { 8, 1, 6 } });
+
+            Matrix Answer = new Matrix(new double[,] {  { 8, 5, 5 },
+                                                        { 5, 4, 7 },
+                                                        {12, 2, 9 } });
+
+            //carry out the test
+            Matrix test = A + B;
+
+            //check the result against the known answer
+            for (int row = 0; row < test.Rows; row++)
+            {
+                for (int column = 0; column < test.Columns; column++)
+                {
+                    Assert.AreEqual(Answer.Array2D[row, column], test.Array2D[row, column]);
+                }
+            }
+            Assert.AreEqual(Answer.Rows, test.Rows);
+            Assert.AreEqual(Answer.Columns, test.Columns);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Operator_MatrixAddition_incorrectArguments()
+        {
+            //known quantities
+            Matrix A = new Matrix(new double[,] {   { 1, 2, 4 },
+                                                    { 3, 1, 2 }, });
+
+            Matrix B = new Matrix(new double[,] {   { 7, 3, 1 },
+                                                    { 2, 3, 5 },
+                                                    { 8, 1, 6 } });
+            Matrix test = A + B;
+        }
+
+        [TestMethod]
+        public void Operator_MatrixSubtraction()
+        {
+            //known quantities
+            Matrix A = new Matrix(new double[,] {   { 1, 2, 4 },
+                                                    { 3, 1, 2 },
+                                                    { 4, 1, 3 } });
+
+            Matrix B = new Matrix(new double[,] {   { 7, 3, 1 },
+                                                    { 2, 3, 5 },
+                                                    { 8, 1, 6 } });
+
+            Matrix Answer = new Matrix(new double[,] {  {-6,-1, 3 },
+                                                        { 1,-2,-3 },
+                                                        {-4, 0,-3 } });
+
+            //carry out the test
+            Matrix test = A - B;
+
+            //check the result against the known answer
+            for (int row = 0; row < test.Rows; row++)
+            {
+                for (int column = 0; column < test.Columns; column++)
+                {
+                    Assert.AreEqual(Answer.Array2D[row, column], test.Array2D[row, column]);
+                }
+            }
+            Assert.AreEqual(Answer.Rows, test.Rows);
+            Assert.AreEqual(Answer.Columns, test.Columns);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Operator_MatrixSubtraction_incorrectArguments()
+        {
+            //known quantities
+            Matrix A = new Matrix(new double[,] {   { 1, 2, 4 },
+                                                    { 3, 1, 2 }, });
+
+            Matrix B = new Matrix(new double[,] {   { 7, 3, 1 },
+                                                    { 2, 3, 5 },
+                                                    { 8, 1, 6 } });
+            Matrix test = A - B;
         }
     }
 }
