@@ -174,5 +174,44 @@ namespace LinearAlgebra
             return new Matrix(temp);
         }
         #endregion
+
+        #region methods
+        /// <summary>
+        /// Computes the determinant of a matrix by using LU decomposition and then applying gamma*determinant(U) where gamma=determinant(inverse(P))
+        /// </summary>
+        /// <returns></returns>
+        public Matrix determinant()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Computes the inverse of a matrix using LU decomposition with pivoting
+        /// </summary>
+        /// <returns></returns>
+        public Matrix inverse()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns a tuple with the order L, U, P, numberOfPivots
+        /// </summary>
+        /// <returns></returns>
+        private Tuple<double[,], double[,], double[,], int> LUDecompositionWithPivoting()
+        {
+            //verify that the matrix is square
+            if (Rows != Columns)
+                throw new ArgumentException("The matrix must be square");
+
+            int numberOfPivots = 0;
+            double[,] P = new double[Rows, Columns];    // Permutation matrix - result of pivoting
+            double[,] L = new double[Rows, Columns];    // Lower diagonal matrix from decomposition
+            double[,] U = new double[Rows, Columns];    // Upper diagonal matrix from decomposition
+
+            return new Tuple<double[,], double[,], double[,], int>(L, U, P, numberOfPivots);
+        }
+
+        #endregion
     }
 }
