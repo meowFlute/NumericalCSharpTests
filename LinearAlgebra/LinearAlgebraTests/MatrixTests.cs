@@ -232,5 +232,35 @@ namespace LinearAlgebraTests
                                                     { 8, 1, 6 } });
             Matrix test = A - B;
         }
+
+        [TestMethod]
+        public void PivotingLUDecomposition_CorrectAnswerTest()
+        {
+            Matrix A = new Matrix(new double[,] {   { 2, 1, -3 },
+                                                    {-1, 3,  2 },
+                                                    { 3, 1, -3 }});
+            Matrix UAnswer = new Matrix(new double[,] {  { 3,           1, -3 },
+                                                         { 0, 3+(1.0/3.0),  1 },
+                                                         { 0,           0, -1.1 }});
+            Matrix LAnswer = new Matrix(new double[,] {  { 1,           0,   0 },
+                                                         {-(1.0/3.0),   1,   0 },
+                                                         { (2.0/3.0), 0.1,   1 }});
+
+
+
+            Tuple<double[,], double[,], int> test = A.LUDecompositionWithPivoting();
+            
+            //verify that the answer makes sense
+            for(int row = 0; row < UAnswer.Rows; row++)
+            {
+                for(int column = 0; column < UAnswer.Columns; column++)
+                {
+                    Assert.AreEqual(LAnswer.Array2D[row, column], test.Item1[row, column]); //check L
+                    Assert.AreEqual(UAnswer.Array2D[row, column], test.Item2[row, column]); //check U
+                }
+            }
+            //check parity
+            Assert.AreEqual(-1, test.Item3);
+        }
     }
 }

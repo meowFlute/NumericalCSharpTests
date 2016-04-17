@@ -195,21 +195,120 @@ namespace LinearAlgebra
         }
 
         /// <summary>
-        /// Returns a tuple with the order L, U, P, numberOfPivots
+        /// Returns a tuple with the order L, U, and the parity of the permutation matrix
         /// </summary>
         /// <returns></returns>
-        private Tuple<double[,], double[,], double[,], int> LUDecompositionWithPivoting()
+        public Tuple<double[,], double[,], int> LUDecompositionWithPivoting()
         {
             //verify that the matrix is square
             if (Rows != Columns)
                 throw new ArgumentException("The matrix must be square");
 
-            int numberOfPivots = 0;
-            double[,] P = new double[Rows, Columns];    // Permutation matrix - result of pivoting
-            double[,] L = new double[Rows, Columns];    // Lower diagonal matrix from decomposition
-            double[,] U = new double[Rows, Columns];    // Upper diagonal matrix from decomposition
+            //store the solution in these objects
+            int parity = 1;                              // represents even or odd number of pivots that have taken place
+            double[,] LU = new double[Rows, Columns];    // Combined Lower and Upper diagonal matrix from decomposition
+            double[,] L  = new double[Rows, Columns];    // Lower diagonal with 1's along main diagonal
+            double[,] U  = new double[Rows, Columns];    // Upper diagonal with values along main diagonal
+            double biggest, sum, temp;
+            int biggestRow = 0;
+            double [] scalingVector = new double[Rows];
 
-            return new Tuple<double[,], double[,], double[,], int>(L, U, P, numberOfPivots);
+            //copy the matrix over to LU
+            for(int row = 0; row < this.Rows; row++)
+            {
+                for(int column = 0; column < this.Columns; column++)
+                {
+                    LU[row, column] = this.Array2D[row, column];
+                }
+            }
+
+            // get implicit scaling information and check for singular matricies
+            for (int row = 0; row < this.Rows; row++)
+            {
+                biggest = 0;
+                for(int column = 0; column < this.Columns; column++)
+                {
+                    if (Math.Abs(LU[row, column]) > biggest)
+                        biggest = Math.Abs(LU[row, column]); // at the end of the inner loop this is the biggest value in the row
+                }
+                if (biggest == 0) // detect singular matricies
+                    throw new ArgumentException("The matrix is singular and cannot be decomposed");
+                scalingVector[row] = 1.0 / biggest; //save scaling data for later for Crout's method
+            }
+
+            // loop over columns of Crout's method
+            for(int column = 0; column < this.Columns; column++)
+            {
+                for(int row = 0; row < column; row++)
+                {
+                    sum = LU[row, column];
+                    for(int k = 0; k < row; k++)
+                    {
+                        sum -= LU[row, k] * LU[k, column];
+                    }
+                    LU[row, column] = sum;
+                }
+                biggest = 0;
+                for(int row = column; row < this.Rows; row++)
+                {
+                    sum = LU[row, column];
+                    for(int k = 0; k < column; k++)
+                    {
+                        sum -= LU[row, k] * LU[k, column];
+                    }
+                    LU[row, column] = sum;
+                    //would this be the best row so far to pivot?
+                    if (scalingVector[row] * Math.Abs(sum) > biggest)
+                    {
+                        biggest = scalingVector[row] * Math.Abs(sum);
+                        biggestRow = row;
+                    }
+
+                }
+                if(column != biggestRow) //do we need to pivot?
+                {
+                    for (int k = 0; k < this.Rows; k++)
+                    {
+                        temp = LU[biggestRow, k];
+                        LU[biggestRow, k] = LU[column, k];
+                        LU[column, k] = temp;
+                    }
+                    parity *= -1; //swap the parity of the permutation
+                    temp = scalingVector[biggestRow];
+                    scalingVector[biggestRow] = scalingVector[column];
+                    scalingVector[column] = temp;
+                }
+                //check for singularity
+                if (LU[column, column] == 0.0)
+                    throw new ArgumentException("The input matrix is singular");
+                if(column != Columns) //divide by the pivot element
+                {
+                    temp = 1.0 / LU[column, column];
+                    for(int row = column + 1; row < Rows; row++)
+                    {
+                        LU[row, column] *= temp;
+                    }
+                }
+            } // go back for next column reduction
+
+            //split into L and U
+            for(int row = 0; row < Rows; row++)
+            {
+                for(int column = 0; column < Columns; column++)
+                {
+                    if(row == column)
+                    {
+                        L[row, column] = 1.0;
+                        U[row, column] = LU[row, column];
+                    }
+                    else if (row < column)
+                        U[row, column] = LU[row, column];
+                    else
+                        L[row, column] = LU[row, column];
+                }
+            }
+
+            return new Tuple<double[,], double[,], int>(L, U, parity);
         }
 
         #endregion
