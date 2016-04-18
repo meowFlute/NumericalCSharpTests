@@ -8,10 +8,60 @@ namespace LinearAlgebra
 {
     public class Matrix
     {
-        //properties
+        //public properties
         public double[,] Array2D { get; set; }
         public int Rows { get; set; }
         public int Columns { get; set; }
+        public double[,] LU
+        {
+            get
+            {
+                if (lu == null)
+                {
+                    //might as well set all three while we're at it here
+                    Tuple<double[,], int, int[]> temp = LUDecompositionWithPivoting();
+                    lu = temp.Item1;
+                    parity = temp.Item2;
+                    pvec = temp.Item3;
+                }
+                return lu;
+            }
+        }
+        public int Parity
+        {
+            get
+            {
+                if (parity == null)
+                {
+                    //might as well set all three while we're at it here
+                    Tuple<double[,], int, int[]> temp = LUDecompositionWithPivoting();
+                    lu = temp.Item1;
+                    parity = temp.Item2;
+                    pvec = temp.Item3;
+                }
+                return (int)parity; //shouldn't ever be null at this point
+            }
+        }
+        public int[] p
+        {
+            get
+            {
+                if (pvec == null)
+                {
+                    //might as well set all three while we're at it here
+                    Tuple<double[,], int, int[]> temp = LUDecompositionWithPivoting();
+                    lu = temp.Item1;
+                    parity = temp.Item2;
+                    pvec = temp.Item3;
+                }
+                return pvec;
+            }
+        }
+
+        //private fields
+        private double[,] lu;
+        private int? parity;
+        private int[] pvec;
 
         #region Constructors
         /// <summary>
@@ -25,6 +75,9 @@ namespace LinearAlgebra
             //keep track of the dimensions of the matrix
             Rows = rows;
             Columns = columns;
+            lu = null;
+            parity = null;
+            pvec = null;
 
             //populate the matrix with the value passed in
             double[,] newArray2D = new double[Rows, Columns];
@@ -51,6 +104,9 @@ namespace LinearAlgebra
             Rows = newArray2D.GetLength(0);
             Columns = newArray2D.GetLength(1);
             Array2D = newArray2D;
+            lu = null;
+            parity = null;
+            pvec = null;
         }
         #endregion
 
@@ -346,8 +402,9 @@ namespace LinearAlgebra
             return x;
         }
 
-        public Tuple<double[,], double[,]> splitLU(double[,] LU)
+        public Tuple<double[,], double[,]> SplitLU()
         {
+            //I'm thinking that if LU isn't there already that it will auto generate
             if (LU.GetLength(0) != LU.GetLength(1))
                 throw new ArgumentException("LU must be a square matrix");
 
@@ -374,7 +431,7 @@ namespace LinearAlgebra
             return new Tuple<double[,], double[,]>(L, U);
         }
 
-        public Matrix solveLinearSystem(Matrix b)
+        public Matrix SolveLinearSystem(Matrix b)
         {
             //verify that b has the correct dimensions
             if (b.Columns != 1)
@@ -390,8 +447,7 @@ namespace LinearAlgebra
             }
 
             //tuple contains LU, permutation sign, permutation history
-            Tuple<double[,], int, int[]> LUDecomposition = this.LUDecompositionWithPivoting();
-            double[] x = this.LUBacksubstitution(LUDecomposition.Item1, LUDecomposition.Item3, bCopy);
+            double[] x = this.LUBacksubstitution(LU, p, bCopy);
 
             //convert the x solution to a 2D array so we can return a matrix
             double[,] xCopy = new double[x.GetLength(0), 1];

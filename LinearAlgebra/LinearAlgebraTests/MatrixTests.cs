@@ -246,11 +246,9 @@ namespace LinearAlgebraTests
                                                          {-(1.0/3.0),   1,   0 },
                                                          { (2.0/3.0), 0.1,   1 }});
 
-
-
             Tuple<double[,], int, int[]> test = A.LUDecompositionWithPivoting();
 
-            Tuple<double[,], double[,]> LUsplit = A.splitLU(test.Item1);
+            Tuple<double[,], double[,]> LUsplit = A.SplitLU();
             
             //verify that the answer makes sense
             for(int row = 0; row < UAnswer.Rows; row++)
@@ -274,7 +272,7 @@ namespace LinearAlgebraTests
             Matrix b = new Matrix(new double[,] {   { 3 },
                                                     { 5 },
                                                     { 1 }});
-            Matrix x = A.solveLinearSystem(b);
+            Matrix x = A.SolveLinearSystem(b);
 
             Matrix answer = new Matrix(new double[,] {  { -26   },
                                                         {  73.5 },
