@@ -248,19 +248,48 @@ namespace LinearAlgebraTests
 
 
 
-            Tuple<double[,], double[,], int> test = A.LUDecompositionWithPivoting();
+            Tuple<double[,], int, int[]> test = A.LUDecompositionWithPivoting();
+
+            Tuple<double[,], double[,]> LUsplit = A.splitLU(test.Item1);
             
             //verify that the answer makes sense
             for(int row = 0; row < UAnswer.Rows; row++)
             {
                 for(int column = 0; column < UAnswer.Columns; column++)
                 {
-                    Assert.AreEqual(LAnswer.Array2D[row, column], test.Item1[row, column]); //check L
-                    Assert.AreEqual(UAnswer.Array2D[row, column], test.Item2[row, column]); //check U
+                    Assert.AreEqual(LAnswer.Array2D[row, column], LUsplit.Item1[row, column]); //check L
+                    Assert.AreEqual(UAnswer.Array2D[row, column], LUsplit.Item2[row, column]); //check U
                 }
             }
             //check parity
-            Assert.AreEqual(-1, test.Item3);
+            Assert.AreEqual(-1, test.Item2);
+        }
+
+        [TestMethod]
+        public void SystemOfEquations_CorrectAnswerTest()
+        {
+            Matrix A = new Matrix(new double[,] {   { 15, 2, -4},
+                                                    {  5, 1, -1},
+                                                    {  7, 5,  3}});
+            Matrix b = new Matrix(new double[,] {   { 3 },
+                                                    { 5 },
+                                                    { 1 }});
+            Matrix x = A.solveLinearSystem(b);
+
+            Matrix answer = new Matrix(new double[,] {  { -26   },
+                                                        {  73.5 },
+                                                        { -61.5 }});
+
+            double machineEpsilon = 1.0d;
+
+            do{
+                machineEpsilon /= 2.0d;
+            }while (1.0 + machineEpsilon != 1.0);
+
+            for (int row = 0; row < x.Rows; row++)
+            {
+                Assert.AreEqual(x.Array2D[row, 0], answer.Array2D[row, 0], 0.0000000001);
+            }
         }
     }
 }

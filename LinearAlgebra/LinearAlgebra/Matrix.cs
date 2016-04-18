@@ -29,9 +29,9 @@ namespace LinearAlgebra
             //populate the matrix with the value passed in
             double[,] newArray2D = new double[Rows, Columns];
 
-            for(int row = 0; row < Rows; row++)
+            for (int row = 0; row < Rows; row++)
             {
-                for(int column = 0; column < Columns; column++)
+                for (int column = 0; column < Columns; column++)
                 {
                     newArray2D[row, column] = value;
                 }
@@ -69,7 +69,7 @@ namespace LinearAlgebra
 
             //carry out matrix multiplication
             double[,] tempArray = new double[A.Rows, B.Columns]; //temporary storage of new array
-            for(int ARow = 0; ARow < A.Rows; ARow++)
+            for (int ARow = 0; ARow < A.Rows; ARow++)
             {
                 for (int BColumn = 0; BColumn < B.Columns; BColumn++)
                 {
@@ -95,9 +95,9 @@ namespace LinearAlgebra
         public static Matrix operator *(double x, Matrix A)
         {
             double[,] temp = new double[A.Rows, A.Columns];
-            for(int row = 0; row < A.Rows; row++)
+            for (int row = 0; row < A.Rows; row++)
             {
-                for(int column = 0; column < A.Columns; column++)
+                for (int column = 0; column < A.Columns; column++)
                 {
                     // double x double so order doesn't matter
                     temp[row, column] = A.Array2D[row, column] * x;
@@ -131,14 +131,14 @@ namespace LinearAlgebra
                 throw new ArgumentException("A and B must have the same dimensions.");
 
             //temporary storage
-            double [,] temp = new double[A.Rows, A.Columns];
+            double[,] temp = new double[A.Rows, A.Columns];
 
             //add for each value in the matrix
-            for(int row = 0; row < A.Rows; row++)
+            for (int row = 0; row < A.Rows; row++)
             {
-                for(int column = 0; column < A.Columns; column++)
+                for (int column = 0; column < A.Columns; column++)
                 {
-                    temp[row,column] = A.Array2D[row, column] + B.Array2D[row, column];
+                    temp[row, column] = A.Array2D[row, column] + B.Array2D[row, column];
                 }
             }
 
@@ -195,10 +195,10 @@ namespace LinearAlgebra
         }
 
         /// <summary>
-        /// Returns a tuple with the order L, U, and the parity of the permutation matrix
+        /// Decomposed the matrix represented in Array2D into L and U
         /// </summary>
-        /// <returns></returns>
-        public Tuple<double[,], double[,], int> LUDecompositionWithPivoting()
+        /// <returns>Returns a tuple with the order LU, the parity of the permutation matrix, and a vector of a permutation</returns>
+        public Tuple<double[,], int, int[]> LUDecompositionWithPivoting()
         {
             //verify that the matrix is square
             if (Rows != Columns)
@@ -207,16 +207,15 @@ namespace LinearAlgebra
             //store the solution in these objects
             int parity = 1;                              // represents even or odd number of pivots that have taken place
             double[,] LU = new double[Rows, Columns];    // Combined Lower and Upper diagonal matrix from decomposition
-            double[,] L  = new double[Rows, Columns];    // Lower diagonal with 1's along main diagonal
-            double[,] U  = new double[Rows, Columns];    // Upper diagonal with values along main diagonal
             double biggest, sum, temp;
             int biggestRow = 0;
-            double [] scalingVector = new double[Rows];
+            double[] scalingVector = new double[Rows];
+            int[] permutations = new int[Columns];
 
             //copy the matrix over to LU
-            for(int row = 0; row < this.Rows; row++)
+            for (int row = 0; row < this.Rows; row++)
             {
-                for(int column = 0; column < this.Columns; column++)
+                for (int column = 0; column < this.Columns; column++)
                 {
                     LU[row, column] = this.Array2D[row, column];
                 }
@@ -226,7 +225,7 @@ namespace LinearAlgebra
             for (int row = 0; row < this.Rows; row++)
             {
                 biggest = 0;
-                for(int column = 0; column < this.Columns; column++)
+                for (int column = 0; column < this.Columns; column++)
                 {
                     if (Math.Abs(LU[row, column]) > biggest)
                         biggest = Math.Abs(LU[row, column]); // at the end of the inner loop this is the biggest value in the row
@@ -237,22 +236,22 @@ namespace LinearAlgebra
             }
 
             // loop over columns of Crout's method
-            for(int column = 0; column < this.Columns; column++)
+            for (int column = 0; column < this.Columns; column++)
             {
-                for(int row = 0; row < column; row++)
+                for (int row = 0; row < column; row++)
                 {
                     sum = LU[row, column];
-                    for(int k = 0; k < row; k++)
+                    for (int k = 0; k < row; k++)
                     {
                         sum -= LU[row, k] * LU[k, column];
                     }
                     LU[row, column] = sum;
                 }
                 biggest = 0;
-                for(int row = column; row < this.Rows; row++)
+                for (int row = column; row < this.Rows; row++)
                 {
                     sum = LU[row, column];
-                    for(int k = 0; k < column; k++)
+                    for (int k = 0; k < column; k++)
                     {
                         sum -= LU[row, k] * LU[k, column];
                     }
@@ -265,7 +264,7 @@ namespace LinearAlgebra
                     }
 
                 }
-                if(column != biggestRow) //do we need to pivot?
+                if (column != biggestRow) //do we need to pivot?
                 {
                     for (int k = 0; k < this.Rows; k++)
                     {
@@ -279,24 +278,88 @@ namespace LinearAlgebra
                     scalingVector[column] = temp;
                 }
                 //check for singularity
+                permutations[column] = biggestRow;
                 if (LU[column, column] == 0.0)
                     throw new ArgumentException("The input matrix is singular");
-                if(column != Columns) //divide by the pivot element
+                if (column != Columns) //divide by the pivot element
                 {
                     temp = 1.0 / LU[column, column];
-                    for(int row = column + 1; row < Rows; row++)
+                    for (int row = column + 1; row < Rows; row++)
                     {
                         LU[row, column] *= temp;
                     }
                 }
             } // go back for next column reduction
+            
+            return new Tuple<double[,], int, int[]>(LU, parity, permutations);
+        }
+
+        /// <summary>
+        /// This equations uses forward and back substitution to take LU and b and return x for Ax=b
+        /// </summary>
+        /// <param name="LU">The combined upper and lower diagonal matricies (the lower part is L, the upper part is U)</param>
+        /// <param name="permutations">The permutation history that went into forming LU</param>
+        /// <param name="b">The right hand side of Ax = b</param>
+        /// <returns>the vector x</returns>
+        public double[] LUBacksubstitution(double[,] LU, int[] permutations, double[] b)
+        {
+            int pivotRow; 
+            int bRow = -1;
+            double sum;
+            double[] x = new double[this.Rows];
+            
+            //copy the data from b into x so b is not destroyed.
+            //x will eventually be returned as the solution
+            Array.Copy(b, x, this.Rows);
+
+            //forward substitution first
+            for (int row = 0; row < this.Rows; row++)
+            {
+                //when bRow is set to something besides -1 it will be the index of the 
+                //first nonvansishing element of b. We then do forward substitution while
+                //unraveling the previous permutations that went into forming LU
+                pivotRow = permutations[row];
+                sum = x[pivotRow];
+                x[pivotRow] = x[row];
+                if (bRow > -1)
+                {
+                    for (int column = bRow; column < row; column++)
+                    {
+                        sum -= LU[row, column] * x[column];
+                    }
+                }
+                else if (sum > 0) //non-zero element encountered so from now on bRow will tell us to loop
+                    bRow = row;
+                //assign the sum to x
+                x[row] = sum;
+            }
+            //backsubstitution
+            for(int row = Rows-1; row >= 0; row--)
+            {
+                sum = x[row];
+                for(int column = row+1; column < Rows; column++)
+                {
+                    sum -= LU[row, column] * x[column];
+                }
+                x[row] = sum / LU[row, row]; //store final answer
+            }
+            return x;
+        }
+
+        public Tuple<double[,], double[,]> splitLU(double[,] LU)
+        {
+            if (LU.GetLength(0) != LU.GetLength(1))
+                throw new ArgumentException("LU must be a square matrix");
 
             //split into L and U
-            for(int row = 0; row < Rows; row++)
+            double[,] L = new double[LU.GetLength(0), LU.GetLength(1)];    // Lower diagonal with 1's along main diagonal
+            double[,] U = new double[LU.GetLength(0), LU.GetLength(1)];    // Upper diagonal with values along main diagonal
+
+            for (int row = 0; row < Rows; row++)
             {
-                for(int column = 0; column < Columns; column++)
+                for (int column = 0; column < Columns; column++)
                 {
-                    if(row == column)
+                    if (row == column)
                     {
                         L[row, column] = 1.0;
                         U[row, column] = LU[row, column];
@@ -308,9 +371,38 @@ namespace LinearAlgebra
                 }
             }
 
-            return new Tuple<double[,], double[,], int>(L, U, parity);
+            return new Tuple<double[,], double[,]>(L, U);
         }
 
-        #endregion
+        public Matrix solveLinearSystem(Matrix b)
+        {
+            //verify that b has the correct dimensions
+            if (b.Columns != 1)
+                throw new ArgumentException("b is not a column vector.");
+            if (b.Rows != this.Rows)
+                throw new ArgumentException("b and A do not have the same number of rows");
+            
+            //extract the 1D array from b's 2D array
+            double[] bCopy = new double[b.Rows];
+            for(int row = 0; row < b.Rows; row++)
+            {
+                bCopy[row] = b.Array2D[row, 0];
+            }
+
+            //tuple contains LU, permutation sign, permutation history
+            Tuple<double[,], int, int[]> LUDecomposition = this.LUDecompositionWithPivoting();
+            double[] x = this.LUBacksubstitution(LUDecomposition.Item1, LUDecomposition.Item3, bCopy);
+
+            //convert the x solution to a 2D array so we can return a matrix
+            double[,] xCopy = new double[x.GetLength(0), 1];
+            for(int row = 0; row < x.GetLength(0); row++)
+            {
+                xCopy[row, 0] = x[row];
+            }
+
+            //return a matrix
+            return new Matrix(xCopy);
+        }
+            #endregion
     }
 }
