@@ -242,12 +242,27 @@ namespace LinearAlgebra
         }
 
         /// <summary>
-        /// Computes the inverse of a matrix using LU decomposition with pivoting
+        /// Computes the inverse of a matrix using LU decomposition with pivoting and the inverting column by column
         /// </summary>
         /// <returns></returns>
-        public Matrix inverse()
+        public Matrix Inverse()
         {
-            throw new NotImplementedException();
+            double[] columnVector = new double[Rows];
+            double[] x;
+            double[,] inverse = new double[Rows, Columns];
+
+            //calculates inverse column by column using same LU matrix the whole time
+            for(int column = 0; column < Columns; column++)
+            {
+                for (int row = 0; row < Rows; row++)
+                    columnVector[row] = 0;
+                columnVector[column] = 1;
+                x = LUBacksubstitution(LU, p, columnVector); // LU will be calculated once and then kept for each column iteration
+                for (int row = 0; row < Rows; row++)
+                    inverse[row, column] = x[row];           //populate the inverse matrix column by column
+            }
+
+            return new Matrix(inverse);
         }
 
         /// <summary>

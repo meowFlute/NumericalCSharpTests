@@ -279,7 +279,6 @@ namespace LinearAlgebraTests
                                                         { -61.5 }});
 
             double machineEpsilon = 1.0d;
-
             do{
                 machineEpsilon /= 2.0d;
             }while (1.0 + machineEpsilon != 1.0);
@@ -287,6 +286,24 @@ namespace LinearAlgebraTests
             for (int row = 0; row < x.Rows; row++)
             {
                 Assert.AreEqual(x.Array2D[row, 0], answer.Array2D[row, 0], 0.0000000001);
+            }
+        }
+
+        [TestMethod]
+        public void MatrixInverse_CorrectAnswerTest()
+        {
+            Matrix A = new Matrix(new double[,] {   { 15, 2, -4},
+                                                    {  5, 1, -1},
+                                                    {  7, 5,  3}});
+            Matrix InverseA = A.Inverse();
+
+            Matrix answer = new Matrix(new double[,] {  {   2,  -6.5, 0.5},
+                                                        {-5.5, 18.25,-1.25},
+                                                        { 4.5,-15.25, 1.25}});
+           
+            for (int row = 0; row < InverseA.Rows; row++)
+            {
+                Assert.AreEqual(answer.Array2D[row, 0], InverseA.Array2D[row, 0], 0.0000000001);
             }
         }
     }
