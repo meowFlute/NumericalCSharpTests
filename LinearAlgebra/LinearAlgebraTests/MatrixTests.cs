@@ -306,5 +306,17 @@ namespace LinearAlgebraTests
                 Assert.AreEqual(answer.Array2D[row, 0], InverseA.Array2D[row, 0], 0.0000000001);
             }
         }
+
+        [TestMethod]
+        public void MatrixDeterminant_CorrectAnswerTest()
+        {
+            Matrix A = new Matrix(new double[,] {   { 15, 2, -4},
+                                                    {  5, 1, -1},
+                                                    {  7, 5,  3}});
+            double Determinant = A.Determinant;
+            double Answer = 4.0;
+
+            Assert.AreEqual(Answer, Determinant, 0.0000000001);
+        }
     }
 }

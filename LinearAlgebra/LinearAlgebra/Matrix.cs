@@ -57,11 +57,35 @@ namespace LinearAlgebra
                 return pvec;
             }
         }
+        public double Determinant
+        {
+            get
+            {
+                if(determinant == null)
+                {
+                    determinant = CalculateDeterminant();
+                }
+                return (double)determinant;
+            }
+        }
+        public double[,] InverseArray
+        {
+            get
+            {
+                if(inverseArray == null)
+                {
+                    inverseArray = CalculateInverse();
+                }
+                return inverseArray;
+            }
+        }
 
         //private fields
         private double[,] lu;
         private int? parity;
         private int[] pvec;
+        private double? determinant;
+        private double[,] inverseArray;
 
         #region Constructors
         /// <summary>
@@ -78,6 +102,8 @@ namespace LinearAlgebra
             lu = null;
             parity = null;
             pvec = null;
+            inverseArray = null;
+            determinant = null;
 
             //populate the matrix with the value passed in
             double[,] newArray2D = new double[Rows, Columns];
@@ -107,6 +133,8 @@ namespace LinearAlgebra
             lu = null;
             parity = null;
             pvec = null;
+            inverseArray = null;
+            determinant = null;
         }
         #endregion
 
@@ -236,16 +264,21 @@ namespace LinearAlgebra
         /// Computes the determinant of a matrix by using LU decomposition and then applying gamma*determinant(U) where gamma=determinant(inverse(P))
         /// </summary>
         /// <returns></returns>
-        public Matrix determinant()
+        private double CalculateDeterminant()
         {
-            throw new NotImplementedException();
+            double determinant = Parity; //this line also happens to generate LU if it hasn't already been generated
+            for (int row = 0; row < Rows; row++)
+                determinant *= LU[row, row]; //multiplying down the main diagonal of U times the parity gives us the determinant of A
+            //this is because det(L) = 1, and det(P)*det(L)*det(U) = det(A). The parity is det(P), det(L) is 1, and det(U) is the main diagonal
+
+            return determinant;
         }
 
         /// <summary>
         /// Computes the inverse of a matrix using LU decomposition with pivoting and the inverting column by column
         /// </summary>
-        /// <returns></returns>
-        public Matrix Inverse()
+        /// <returns>Matrix object that is inverse of "this" object</returns>
+        private double[,] CalculateInverse()
         {
             double[] columnVector = new double[Rows];
             double[] x;
@@ -262,7 +295,12 @@ namespace LinearAlgebra
                     inverse[row, column] = x[row];           //populate the inverse matrix column by column
             }
 
-            return new Matrix(inverse);
+            return inverse;
+        }
+
+        public Matrix Inverse()
+        {
+            return new Matrix(InverseArray); //only calculates it if it hasn't already been calculated
         }
 
         /// <summary>
